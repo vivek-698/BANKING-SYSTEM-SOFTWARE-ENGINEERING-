@@ -4,10 +4,10 @@ import os
 from random import randint, randrange
 
 
-"""def AcctNo(n=7): #Generate Account Number
+def AcctNo(n=7): #Generate Account Number
     range_start = 10**(n-1)
     range_end = (10**n)-1
-    return randint(range_start, range_end)"""
+    return randint(range_start, range_end)
 
 import mysql.connector
 from mysql.connector import Error
@@ -23,25 +23,38 @@ try:
         
         def deposit(id):
             amt = float(input("Enter the amount to be deposited: "))
-            cursor.execute("SELECT MAX(TransactionID) FROM bansystem.transactions")
+            cursor.execute("SELECT MAX(TransactionID) FROM banksystem.transactions")
             TransID = cursor.fetchone()[0] + 1
-            ins_cust = ("UPDATE banksystem.cust SET Balance = Balance + %f WHERE Id = %s", (amt, id))
+            ins_cust = ("UPDATE banksystem.cust SET Balance = Balance + %s WHERE Id = %s", (amt, id))
             cursor.execute(ins_cust)
-            ins_transaction = ("INSERT INTO banksystem.transactions (CustId, TransactionID, TransactionType, Amount, Date, Balance) VALUES (%d, %d, %s, %f, %s, %s)", (id, TransID, "Deposit", amt, "2021-01-01", 0))
+            balance = cursor.execute("SELECT Balance FROM banksystem.cust WHERE Id = %s", (id,))
+            ins_transaction = ("INSERT INTO banksystem.transactions (CustId, TransactionID, TransactionType, Amount, Date, Balance) VALUES (%s, %s, %s, %s, %s, %s)", (id, TransID, "Deposit", amt, "2021-01-01", balance))
             cursor.execute(ins_transaction)
             connection.commit()
 
         def withdraw():
-            pass
+            amt = float(input("Enter the amount to be deposited: "))
+            cursor.execute("SELECT MAX(TransactionID) FROM banksystem.transactions")
+            TransID = cursor.fetchone()[0] + 1
+            ins_cust = ("UPDATE banksystem.cust SET Balance = Balance - %s WHERE Id = %s", (amt, id))
+            cursor.execute(ins_cust)
+            balance = cursor.execute("SELECT Balance FROM banksystem.cust WHERE Id = %s", (id,))
+            ins_transaction = ("INSERT INTO banksystem.transactions (CustId, TransactionID, TransactionType, Amount, Date, Balance) VALUES (%s, %s, %s, %s, %s, %s)", (id, TransID, "Withdraw", amt, "2021-01-01", balance))
+            cursor.execute(ins_transaction)
+            connection.commit()
         
-        def transfer():
-            pass
+        '''def transfer():
+            pass'''
 
-        def checkBalance():
-            pass
+        def checkBalance(id):
+            cursor.execute("SELECT Balance FROM banksystem.cust WHERE Id = %s", (id,))
+            balance = cursor.fetchone()[0]
+            print("Your balance is: ", balance)
 
-        def printTransactions():
-            pass
+        def printTransactions(id):
+            cursor.execute("SELECT * FROM banksystem.transactions WHERE CustId = %s", (id,))
+            transactions = cursor.fetchall()
+            print(transactions)
 
         def login(): #To DO: Add password, 
             print("Log-In")
@@ -79,8 +92,8 @@ try:
             print("Enter the following details to create an account")
             name = input("Enter your name: ")
             aadhar = input("Enter your Aadhar Number: ")
-            cursor.execute("SELECT AadharNo from banksystem.cust")
-            record = cursor.fetchall()
+            #cursor.execute("SELECT AadharNo from banksystem.cust")
+            '''record = cursor.fetchall()
             while i in record:
                 print("Account Linked to this Aadhar already exists! Login (1) or Try Again (2) : ")
                 i = int(input())
@@ -91,7 +104,7 @@ try:
                 else:
                     print("Invalid index! Try Again")
                     print("Redirecting you to the Create Account Page")
-                    createAcct()
+                    createAcct()'''
             age = int(input("Enter your age: "))
             balance = 0.0
             cursor.execute("SELECT MAX(Id) FROM cust")
@@ -101,11 +114,13 @@ try:
             record = cursor.fetchall()
             while acctNo in record:
                 acctNo = AcctNo()
-            cursor.execute("INSERT INTO banksystem.cust (Id, Name, AadharNo, Age, Balance, AcctNo) VALUES (%d, %s, %s, %d, %f, %d)", (id, name, aadhar, age, balance, acctNo))
+            cursor.execute("INSERT INTO banksystem.cust (Id, Name, AadharNo, Age, Balance, AcctNo) VALUES (%s, %s, %s, %s, %s, %s)", (id, name, aadhar, age, balance, acctNo))
+            pw = input("Enter your password: ")
+            cursor.execute("INSERT INTO banksystem.password (Id, Password) VALUES (%s, %s)", (id, pw, ))
             connection.commit()
             print("Account created successfully!")
             print("Your account number is: ", id)
-            print("Your password is: ", id)
+            print("Your password is: ", pw)
             print("Please remember your account number and password")
             print("Press any key to continue")
             input()
@@ -142,7 +157,6 @@ try:
             #Exit
             os._exit(0)
         else:
-            print("Invalid Choice! Try Again!")
             os._exit(0)
 except Error as e:
     print("Error while connecting to Bank Database(MySQL)", e)

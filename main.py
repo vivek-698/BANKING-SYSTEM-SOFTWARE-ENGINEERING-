@@ -12,7 +12,7 @@ try:
         print("You're connected to database: ", record)
         mySql_Create_Table_Query = """CREATE TABLE Cust ( Id int(11) NOT NULL,Name varchar(250) NOT NULL,AadharNo varchar(12) NOT NULL, Age int NOT NULL,Balance float NOT NULL, AcctNo int NOT NULL, PRIMARY KEY (Id))"""
         cursor.execute(mySql_Create_Table_Query)
-        mySql_Create_Table_Query2 = """CREATE TABLE Transactions (CustId int(11) NOT NULL, TransactionID varchar(250) NOT NULL, TransactionType varchar(250) NOT NULL, Amount float NOT NULL, Date date NOT NULL, Balance float NOT NULL, PRIMARY KEY (TransactionID))"""
+        mySql_Create_Table_Query2 = """CREATE TABLE Transactions (CustId int(11) NOT NULL, TransactionID int NOT NULL, TransactionType varchar(250) NOT NULL, Amount float NOT NULL, Date date NOT NULL, Balance float NOT NULL, PRIMARY KEY (TransactionID))"""
         cursor.execute(mySql_Create_Table_Query2)
         mySql_Create_Table_Query3 = """CREATE TABLE Password ( Id int(11) NOT NULL,Password varchar(250) NOT NULL, PRIMARY KEY (Id))"""
         cursor.execute(mySql_Create_Table_Query3)
