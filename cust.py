@@ -4,10 +4,10 @@ import os
 from random import randint, randrange
 
 
-def AcctNo(n=7): #Generate Account Number
+"""def AcctNo(n=7): #Generate Account Number
     range_start = 10**(n-1)
     range_end = (10**n)-1
-    return randint(range_start, range_end)
+    return randint(range_start, range_end)"""
 
 import mysql.connector
 from mysql.connector import Error
@@ -16,21 +16,19 @@ try:
     connection = mysql.connector.connect(host='localhost',
                                          database='banksystem',
                                          user='root',
-                                         password='Venomgt@123')
+                                         password='root')
     
     if connection.is_connected():
         cursor = connection.cursor()
         
-      
-
         def deposit(id):
             amt = float(input("Enter the amount to be deposited: "))
             cursor.execute("SELECT MAX(TransactionID) FROM bansystem.transactions")
             TransID = cursor.fetchone()[0] + 1
-            # ins_cust = ("UPDATE banksystem.cust SET Balance = Balance + %s WHERE Id = %s", (amt, id))
-            # cursor.execute(ins_cust)
-            # ins_transaction = ("INSERT INTO banksystem.transactions (CustId, TransactionID, TransactionType, Amount, Date, Balance) VALUES (%s, %s, %s, %s, %s, %s)", (id, TransID, "Deposit", amt, "2021-01-01", 0))
-            # cursor.execute(ins_transaction)
+            ins_cust = ("UPDATE banksystem.cust SET Balance = Balance + %f WHERE Id = %s", (amt, id))
+            cursor.execute(ins_cust)
+            ins_transaction = ("INSERT INTO banksystem.transactions (CustId, TransactionID, TransactionType, Amount, Date, Balance) VALUES (%d, %d, %s, %f, %s, %s)", (id, TransID, "Deposit", amt, "2021-01-01", 0))
+            cursor.execute(ins_transaction)
             connection.commit()
 
         def withdraw():
@@ -58,7 +56,7 @@ try:
                     login()
                 else:
                     exit()
-            cursor.execute("SELECT * FROM banksystem.cust WHERE Id = '%s'", (id,))
+            cursor.execute("SELECT * FROM banksystem.cust WHERE Id = %s", (id,))
             record = cursor.fetchone()
             print("Login Successful!!")
             print("Welcome", record[1])
@@ -76,14 +74,14 @@ try:
                 printTransactions(record[0])
             else:
                 os._exit(0)
-
+    
         def createAcct():
             print("Enter the following details to create an account")
             name = input("Enter your name: ")
             aadhar = input("Enter your Aadhar Number: ")
-            cursor.execute("SELECT AadharNo from banksystem.cust WHERE AadharNo= %s",(aadhar,))
-            record = cursor.fetchone()
-            if record!=None:
+            cursor.execute("SELECT AadharNo from banksystem.cust")
+            record = cursor.fetchall()
+            while i in record:
                 print("Account Linked to this Aadhar already exists! Login (1) or Try Again (2) : ")
                 i = int(input())
                 if i == 1:
@@ -103,40 +101,24 @@ try:
             record = cursor.fetchall()
             while acctNo in record:
                 acctNo = AcctNo()
-            pw=input("Enter Password: ")
-            #implement criteria Checking    
-            if age>18:    
-                cursor.execute("INSERT INTO banksystem.cust (Id, Name, AadharNo, Age, Balance, AcctNo) VALUES (%s, %s, %s, %s, %s, %s)", (id, name, aadhar, age, balance, acctNo))
-                cursor.execute("INSERT INTO banksystem.password (Id, Password) VALUES (%s, %s)", (id, pw))
-                connection.commit()
-                print("Account created successfully!")
-                    
-                print("Your account number is: ", id)
-                print("Your Password is: ",pw)
-                
-                
-                print("Please remember your account number and password")
-                print("Press any key to continue")
-                input()
-                os.system('cls')
-                print("Redirecting you to Login Page.....")
-                login()
-
-            else :
-                print("Age Criteria For creating account is not satisfied")
-                print("For Further Information please visit clobanking.com")
-                os._exit(0)
-                    
+            cursor.execute("INSERT INTO banksystem.cust (Id, Name, AadharNo, Age, Balance, AcctNo) VALUES (%d, %s, %s, %d, %f, %d)", (id, name, aadhar, age, balance, acctNo))
+            connection.commit()
+            print("Account created successfully!")
+            print("Your account number is: ", id)
+            print("Your password is: ", id)
+            print("Please remember your account number and password")
+            print("Press any key to continue")
+            input()
+            os.system('cls')
+            print("Redirecting you to Login Page.....")
+            login()
             
-         
-
-
-        #main   
-        print("Welcome to the Bank of Python")
+        print("Connected To Bank Database")
+        print("Welcome to CloBank")
         print("1. Log-In\n2. Create Account\n3. Exit")
         choice = int(input("Enter your choice: "))
         if choice == 1:
-            # print("Log-In")
+            print("Log-In")
             #Log-In Page -> Main Page
             #Check if the user exists in the database
             #If yes, then go to Main Page
@@ -156,14 +138,14 @@ try:
             #Go to Main Page
             createAcct()
         if choice == 3:
-            print("Thank you for using the Bank of Python")
+            print("Thank you for using CloBank")
             #Exit
             os._exit(0)
         else:
             print("Invalid Choice! Try Again!")
             os._exit(0)
 except Error as e:
-    print("Error while connecting to Bank Server(MySQL)", e)
+    print("Error while connecting to Bank Database(MySQL)", e)
 finally:
     if connection.is_connected():
         cursor.close()
