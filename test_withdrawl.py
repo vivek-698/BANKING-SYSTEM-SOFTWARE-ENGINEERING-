@@ -30,7 +30,7 @@ try:
             cursor.execute("SELECT MAX(TransactionID) FROM banksystem.transactions")
             TransID = int(cursor.fetchone()[0]) + 1
             #print(TransID)
-            cursor.execute("SELECT Balance FROM banksystem.cust WHERE Id = %s", (100,))
+            cursor.execute("SELECT Balance FROM banksystem.cust WHERE Id = %s", (id,))
             Bal = cursor.fetchone()[0]
             print("\nCurrent Balance: ",Bal)
             amt = float(input("\nEnter the amount to be withdrawn: "))
@@ -45,7 +45,7 @@ try:
                     return 0
             d1 = today.strftime("%Y-%m-%d")
             print("\nRemaining Balance: ",Bal)
-            cursor.execute("INSERT INTO banksystem.transactions (CustId, TransactionID, TransactionType, Amount, Date, Balance) VALUES (%s, %s, %s, %s, %s, %s)", (100, TransID, "Withdraw", amt, d1, Bal))
+            cursor.execute("INSERT INTO banksystem.transactions (CustId, TransactionID, TransactionType, Amount, Date, Balance) VALUES (%s, %s, %s, %s, %s, %s)", (id, TransID, "Withdraw", amt, d1, Bal))
             connection.commit()
             return 1
 
