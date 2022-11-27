@@ -2,7 +2,8 @@ from calendar import c
 import os
 #First Page - Log-In Page -> Create Acct Page
 from random import randint, randrange
-
+from datetime import date
+today = date.today()
 
 def AcctNo(n=7): #Generate Account Number
     range_start = 10**(n-1)
@@ -19,28 +20,37 @@ try:
                                          password='root')
     
     if connection.is_connected():
-        cursor = connection.cursor()
+        cursor = connection.cursor(buffered=True)
         
         def deposit(id):
             amt = float(input("Enter the amount to be deposited: "))
             cursor.execute("SELECT MAX(TransactionID) FROM banksystem.transactions")
             TransID = cursor.fetchone()[0] + 1
-            ins_cust = ("UPDATE banksystem.cust SET Balance = Balance + %s WHERE Id = %s", (amt, id))
-            cursor.execute(ins_cust)
-            balance = cursor.execute("SELECT Balance FROM banksystem.cust WHERE Id = %s", (id,))
-            ins_transaction = ("INSERT INTO banksystem.transactions (CustId, TransactionID, TransactionType, Amount, Date, Balance) VALUES (%s, %s, %s, %s, %s, %s)", (id, TransID, "Deposit", amt, "2021-01-01", balance))
-            cursor.execute(ins_transaction)
+            #print(TransID)
+            cursor.execute("SELECT Balance FROM banksystem.cust WHERE Id = %s", (id,))
+            Bal = cursor.fetchone()[0]
+            Bal = int(Bal) + amt
+            #print(Bal)
+            #connection.commit()
+            #ins_transaction = ("INSERT INTO banksystem.transactions (CustId, TransactionID, TransactionType, Amount, Date, Balance) VALUES (%s, %s, %s, %s, %s, %s)", (id, TransID, "Deposit", amt, "2021-01-01", Bal))
+            d1 = today.strftime("%Y-%m-%d")
+            #print("d1 =", d1)
+            cursor.execute("INSERT INTO banksystem.transactions (CustId, TransactionID, TransactionType, Amount, Date, Balance) VALUES (%s, %s, %s, %s, %s, %s)", (id, TransID, "Deposit", amt, d1, Bal))
             connection.commit()
 
         def withdraw():
             amt = float(input("Enter the amount to be deposited: "))
             cursor.execute("SELECT MAX(TransactionID) FROM banksystem.transactions")
             TransID = cursor.fetchone()[0] + 1
-            ins_cust = ("UPDATE banksystem.cust SET Balance = Balance - %s WHERE Id = %s", (amt, id))
-            cursor.execute(ins_cust)
-            balance = cursor.execute("SELECT Balance FROM banksystem.cust WHERE Id = %s", (id,))
-            ins_transaction = ("INSERT INTO banksystem.transactions (CustId, TransactionID, TransactionType, Amount, Date, Balance) VALUES (%s, %s, %s, %s, %s, %s)", (id, TransID, "Withdraw", amt, "2021-01-01", balance))
-            cursor.execute(ins_transaction)
+            #print(TransID)
+            cursor.execute("SELECT Balance FROM banksystem.cust WHERE Id = %s", (id,))
+            Bal = cursor.fetchone()[0]
+            Bal = int(Bal) - amt
+            #print(Bal)
+            #connection.commit()
+            #ins_transaction = ("INSERT INTO banksystem.transactions (CustId, TransactionID, TransactionType, Amount, Date, Balance) VALUES (%s, %s, %s, %s, %s, %s)", (id, TransID, "Deposit", amt, "2021-01-01", Bal))
+            d1 = today.strftime("%Y-%m-%d")
+            cursor.execute("INSERT INTO banksystem.transactions (CustId, TransactionID, TransactionType, Amount, Date, Balance) VALUES (%s, %s, %s, %s, %s, %s)", (id, TransID, "Withdraw", amt, d1, Bal))
             connection.commit()
         
         '''def transfer():
