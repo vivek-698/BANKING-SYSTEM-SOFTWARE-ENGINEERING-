@@ -143,8 +143,12 @@ try:
                 acctNo = AcctNo()
             cursor.execute("INSERT INTO banksystem.cust (Id, Name, AadharNo, Age, Balance, AcctNo) VALUES (%s, %s, %s, %s, %s, %s)", (id, name, aadhar, age, balance, acctNo))
             pw = input("Enter your password: ")
-            cursor.execute("INSERT INTO banksystem.password (Id, Password) VALUES (%s, %s)", (id, pw, ))
-            connection.commit()
+            otp=int(input("Enter Otp"))
+            if otp==57462 or otp==23451:
+                cursor.execute("INSERT INTO banksystem.password (Id, Password) VALUES (%s, %s)", (id, pw, ))
+                connection.commit()
+            else:
+                exit()
             print("Account created successfully!")
             print("Your account number is: ", acctNo)
             print("Your customer_id is: ", id)
